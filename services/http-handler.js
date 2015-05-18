@@ -2,6 +2,7 @@
  * @author kui.liu
  * @since 2014/10/10 下午5:52
  * http处理器，用于设定全局http配置，包括loading状态切换，拦截器配置，超时时间配置等
+ * 基于rest api可以构建超强http缓存中间件
  */
 ;
 (function (angular, undefined) {
