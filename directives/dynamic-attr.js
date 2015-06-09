@@ -10,35 +10,32 @@
 
     angular.module("ngUtils.components.dynamicAttr", [])
 
-        .directive("dynamicAttr", ["$parse", function ($parse) {
+        // 支持的angular事件集合
+        .constant("SUPPORTED_NG_EVENTS", "click dblclick".split(" "))
+
+        .directive("dynamicAttr", ["$parse", "SUPPORTED_NG_EVENTS", function ($parse, SUPPORTED_NG_EVENTS) {
 
             return {
                 restrict: "A",
                 compile : function (element) {
 
-                    // 原始angular支持的事件集合
-                    var EVENTS = "click dblclick".split(" ");
-
                     // 从元素上收集到的事件属性
-                    var collectedEventAttributes = [],
-                        collectedAttrEventMapper = {};
+                    var collectedNgEventMapper = {};
 
                     // 收集当前元素的原始事件(ng-click等)
-                    EVENTS.forEach(function (eventName) {
+                    SUPPORTED_NG_EVENTS.forEach(function (eventName) {
 
-                        var attrName = "ng-" + eventName,
-                            attrValue = element.attr(attrName);
+                        var ngEventAttr = "ng-" + eventName,
+                            ngEventAttrValue = element.attr(ngEventAttr);
 
                         // 如果绑定存在
-                        if (attrValue && (attrValue = attrValue.trim())) {
+                        if (ngEventAttrValue && (ngEventAttrValue = ngEventAttrValue.trim())) {
 
-                            collectedAttrEventMapper[attrName] = {
+                            collectedNgEventMapper[ngEventAttr] = {
                                 eventName : eventName,
-                                expression: attrValue,
-                                fn        : $parse(attrValue, null, true)
+                                expression: ngEventAttrValue,
+                                fn        : $parse(ngEventAttrValue, null, true)
                             };
-
-                            collectedEventAttributes.push(attrName);
                         }
 
                     });
@@ -49,14 +46,14 @@
 
                             if (attributes !== undefined) {
 
-                                angular.forEach(attributes, function (value, attribute) {
+                                angular.forEach(attributes, function (attrAvailable, attribute) {
 
-                                    var originalAttrInfo = collectedAttrEventMapper[attribute];
+                                    var originalAttrInfo = collectedNgEventMapper[attribute] || element.attr(attribute);
 
                                     // 如果属性为已收集到的angular事件类型
-                                    if (~collectedEventAttributes.indexOf(attribute)) {
+                                    if (originalAttrInfo && originalAttrInfo.eventName) {
 
-                                        if (value) {
+                                        if (attrAvailable) {
 
                                             // 如果当前元素上不存在该事件属性但是其原始事件属性存在(表明元素之前做过disable切换)，则重新绑定事件回调
                                             if (!element.attr(attribute) && originalAttrInfo) {
@@ -82,7 +79,8 @@
 
                                     } else {
 
-                                        attr.$set(attribute, value ? "" : null);
+                                        // TODO 当属性不可用时应该移除绑定在元素上相关的逻辑，而可用时则应加上相关逻辑，如何实现这种动态编译某一指令？？
+                                        attr.$set(attribute, attrAvailable ? originalAttrInfo : null);
                                     }
 
                                 });
@@ -91,7 +89,7 @@
 
                         // unbind events for performance
                         scope.$on("$destroy", function unbindEvents() {
-                            angular.forEach(collectedAttrEventMapper, function (eventInfo) {
+                            angular.forEach(collectedNgEventMapper, function (eventInfo) {
                                 element.unbind(eventInfo.eventName);
                             });
 

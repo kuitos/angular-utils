@@ -1,6 +1,7 @@
 /**
  * @author kui.liu
  * @since 2014/12/26 下午5:15
+ * 类似ng-bind-html，只是这里嵌入的html支持angular指令(有一个compile过程)而不是纯静态html
  */
 ;
 (function (angular, undefined) {

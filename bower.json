@@ -7,7 +7,7 @@
     "angular utils"
   ],
   "main": "./services/http-handler.js",
-  "dependency": {
+  "dependencies": {
     "angular": ">=1.x.x"
   },
   "homepage": "https://github.com/kuitos/angular-utils"
