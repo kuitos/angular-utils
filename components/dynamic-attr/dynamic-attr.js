@@ -48,7 +48,7 @@
 
                                 angular.forEach(attributes, function (attrAvailable, attribute) {
 
-                                    var originalAttrInfo = collectedNgEventMapper[attribute] || element.attr(attribute);
+                                    var originalAttrInfo = collectedNgEventMapper[attribute] || element.attr(attribute) || true;
 
                                     // 如果属性为已收集到的angular事件类型
                                     if (originalAttrInfo && originalAttrInfo.eventName) {
@@ -80,7 +80,7 @@
                                     } else {
 
                                         // TODO 当属性不可用时应该移除绑定在元素上相关的逻辑，而可用时则应加上相关逻辑，如何实现这种动态编译某一指令？？
-                                        attr.$set(attribute, attrAvailable ? originalAttrInfo : null);
+                                        element[attrAvailable ? "attr" : "removeAttr"](attribute, originalAttrInfo);
                                     }
 
                                 });
