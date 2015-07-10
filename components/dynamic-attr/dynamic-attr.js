@@ -1,7 +1,7 @@
 /**
  * @author Kuitos
  * @since 15/5/14.
- * @version 1.0.3
+ * @version 1.0.4
  * 动态 添加/删除 元素属性，如果是angular支持的事件(如ngClick)则同时对元素做 绑定/解绑 事件切换
  */
 ;
