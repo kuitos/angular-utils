@@ -1,7 +1,7 @@
 /**
  * @author Kuitos
  * @since 15/5/14.
- * @version 1.0.0
+ * @version 1.0.3
  * 动态 添加/删除 元素属性，如果是angular支持的事件(如ngClick)则同时对元素做 绑定/解绑 事件切换
  */
 ;
@@ -11,7 +11,7 @@
     angular.module("ngUtils.components.dynamicAttr", [])
 
         // 支持的angular事件集合
-        .constant("SUPPORTED_NG_EVENTS", "click dblclick".split(" "))
+        .constant("SUPPORTED_NG_EVENTS", "click dblclick mousedown mouseup mouseover mouseout mousemove mouseenter mouseleave keydown keyup keypress submit focus blur copy cut paste".split(" "))
 
         .directive("dynamicAttr", ["$parse", "SUPPORTED_NG_EVENTS", function ($parse, SUPPORTED_NG_EVENTS) {
 
