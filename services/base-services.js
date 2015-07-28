@@ -194,7 +194,6 @@
         .run(["genResource", "Mediator", "app", function (genResource, Mediator, app) {
             app.genResource = genResource;
             app.Mediator = Mediator;
-            app.timeout = $timeout;
         }]);
 
 })(window.angular);
