@@ -8,7 +8,8 @@
   ],
   "main": "./services/http-handler.js",
   "dependencies": {
-    "angular": ">=1.x.x"
+    "angular": ">=1.x.x",
+    "angular-resource": ">=1.x.x"
   },
   "homepage": "https://github.com/kuitos/angular-utils"
 }
