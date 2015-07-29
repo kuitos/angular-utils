@@ -15,6 +15,7 @@
    * 递归指令服务
    * thanks for http://stackoverflow.com/questions/14430655/recursion-in-angular-directives
    */
+  RecursionHelper.$inject = ["$compile"];
   function RecursionHelper($compile) {
 
     return {
@@ -61,7 +62,5 @@
       }
     };
   }
-
-  RecursionHelper.$inject = ["$compile"];
 
 })(window.angular);
