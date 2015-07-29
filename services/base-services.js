@@ -19,7 +19,7 @@
       /**
        * 指令的模板根目录
        */
-      componentsDir: window.ResourceDir || "src" + "/common/components/",
+      componentsDir: (window.ResourceDir || "src") + "/common/components/",
 
       /**
        * controller间共享的数据
