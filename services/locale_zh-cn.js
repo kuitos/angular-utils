@@ -2,7 +2,7 @@
 
     'use strict';
 
-    angular.module('ngUtils.localeValidation', ["ngLocale"]).
+    angular.module('ngUtils.services.localeValidation', ["ngLocale"]).
         run(['$locale',
             function ($locale) {
                 angular.extend($locale, {

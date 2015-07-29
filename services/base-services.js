@@ -6,7 +6,7 @@
 (function (angular) {
     "use strict";
 
-    angular.module("ngUtils.baseServices", ["ngResource"])
+    angular.module("ngUtils.services.baseServices", ["ngResource"])
 
         /* ******************************** constants & values ******************************** */
         // 定义app

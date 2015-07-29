@@ -11,7 +11,7 @@
     // 模拟service的私有服务
     var _app = {};
 
-    angular.module("ngUtils.http-handler", [])
+    angular.module("ngUtils.services.httpHandler", [])
 
         .config(["$httpProvider", function ($httpProvider) {
 
