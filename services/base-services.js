@@ -129,6 +129,10 @@
       };
     }])
 
+    .constant("restConfig", {
+      apiPrefix: ""
+    })
+
     // rest接口默认cache
     .factory("defaultRestCache", ["$cacheFactory", function ($cacheFactory) {
 
@@ -137,7 +141,7 @@
     }])
 
     // 生成resource
-    .factory("genResource", ["$resource", "defaultRestCache", function ($resource, defaultRestCache) {
+    .factory("genResource", ["$resource", "defaultRestCache", "restConfig", function ($resource, defaultRestCache, restConfig) {
 
       /**
        *  @url resource url
@@ -174,15 +178,8 @@
             "delete": {method: "DELETE", refreshCache: true, savingStatus: true, cache: restHttpCache}
           };
 
-        return $resource(url, params, angular.extend(DEFAULT_ACTIONS, additionalActions));
+        return $resource(restConfig.apiPrefix + url, params, angular.extend(DEFAULT_ACTIONS, additionalActions));
       };
-    }])
-
-    /* ******************************** services config ******************************** */
-    .config(["$resourceProvider", function ($resourceProvider) {
-
-      /** ***************** $resource配置 ****************** **/
-      $resourceProvider.defaults.stripTrailingSlashes = false;  // 强制区分restful请求url的/分隔符
     }])
 
     /* ******************************** services init ******************************** */
