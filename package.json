@@ -1,0 +1,28 @@
+{
+  "name": "angular-utils-kuitos",
+  "version": "1.0.6",
+  "description": "a useful & powerful angular utils collections, without dependencies",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kuitos/angular-utils.git"
+  },
+  "keywords": [
+    "angular",
+    "utils",
+    "useful"
+  ],
+  "author": "Kuitos",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kuitos/angular-utils/issues"
+  },
+  "homepage": "https://github.com/kuitos/angular-utils",
+  "dependencies": {
+    "angular": ">=1.x.x",
+    "angular-resource": ">=1.x.x"
+  }
+}
