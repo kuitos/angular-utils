@@ -2,7 +2,12 @@ useful angular utils
 pure and powerful
 
 ### how to use
-```shell
+npm  
+```
+npm install kuitos-angular-utils
+```
+bower  
+```bash
 bower install kuitos-angular-utils
 ```
 
