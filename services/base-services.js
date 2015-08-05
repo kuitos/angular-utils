@@ -129,8 +129,9 @@
       };
     }])
 
+    // rest api相关配置
     .constant("restConfig", {
-      apiPrefix: ""
+      apiPrefix: "" // rest接口前缀
     })
 
     // rest接口默认cache
