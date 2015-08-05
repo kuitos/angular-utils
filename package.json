@@ -1,5 +1,5 @@
 {
-  "name": "angular-utils-kuitos",
+  "name": "kuitos-angular-utils",
   "version": "1.0.6",
   "description": "a useful & powerful angular utils collections, without dependencies",
   "main": "index.html",
