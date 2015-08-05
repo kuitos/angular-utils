@@ -6,7 +6,7 @@ npm
 ```
 npm install kuitos-angular-utils
 ```
-bower  
+bower(Deprecated)
 ```bash
 bower install kuitos-angular-utils
 ```
