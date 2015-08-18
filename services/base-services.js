@@ -175,7 +175,7 @@
         // 自定义配置(配合$http interceptor) saveStatus:该操作将维护一个保存状态  refreshCache:该操作后下次请求数据需要刷新cache
         var restHttpCache = cache || defaultRestCache,
 
-          transformResponse = $http.defaults.transformResponse.push(transformPrimitiveResponse),
+          transformResponse = $http.defaults.transformResponse.concat(transformPrimitiveResponse),
 
           DEFAULT_ACTIONS = {
             // 查询，结果为对象
