@@ -84,14 +84,11 @@
                 }
               }
 
-              // rest接口响应
-              if (angular.isObject(responseBody) || res.status > 200) {
+              // 若请求为非查询操作(save,update,delete等更新操作)，成功后需要重新刷新cache(清空对应cache)。默认cache为defaultRestCache
+              if (config.method !== 'GET' && config.cache) {
 
-                // 自定义配置，若该请求成功后需要重新刷新cache(save,update,delete等操作)，则清空对应cache。默认cache为defaultRestCache
-                if (config.refreshCache) {
-                  cache = angular.isObject(config.cache) ? config.cache : $cacheFactory.get("defaultRestCache");
-                  cache.removeAll();
-                }
+                cache = angular.isObject(config.cache) ? config.cache : $cacheFactory.get("defaultRestCache");
+                cache.removeAll();
 
                 // 关注保存状态则弹出成功提示
                 if (config.savingStatus) {
