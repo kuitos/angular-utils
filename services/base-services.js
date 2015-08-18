@@ -172,7 +172,7 @@
         }
 
         // 默认cache为defaultRestCache
-        // 自定义配置(配合$http interceptor) saveStatus:该操作将维护一个保存状态  refreshCache:该操作后下次请求数据需要刷新cache
+        // 自定义配置(配合$http interceptor) saveStatus:该操作将维护一个保存状态
         var restHttpCache = cache || defaultRestCache,
 
           transformResponse = $http.defaults.transformResponse.concat(transformPrimitiveResponse),
