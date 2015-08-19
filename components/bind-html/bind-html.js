@@ -5,24 +5,26 @@
  */
 ;
 (function (angular, undefined) {
-    "use strict";
+  "use strict";
 
-    angular.module("ngUtils.components.bindHtml", [])
+  angular.module("ngUtils.components.bindHtml", [])
 
-        .directive("bindHtml", ["$parse", "$compile", function ($parse, $compile) {
+    .directive("bindHtml", ["$compile", function ($compile) {
 
-            return {
-                restrict: "A",
-                link    : function (scope, element, attr) {
+      return {
+        restrict: "A",
+        link    : function (scope, element, attr) {
 
-                    scope.$watch(function (scope) {
-                        return scope.$eval(attr.bindHtml);
-                    }, function (newTpl) {
-                        element.html(newTpl);
-                        $compile(element.contents())(scope);
-                    });
-                }
-            };
+          scope.$watch(function (scope) {
+            return scope.$eval(attr.bindHtml);
+          }, function (newTpl) {
 
-        }]);
+            element.html(newTpl);
+            $compile(element.contents())(scope);
+
+          });
+        }
+      };
+
+    }]);
 })(window.angular);
