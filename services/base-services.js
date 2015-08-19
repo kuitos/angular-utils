@@ -104,8 +104,8 @@
             }
           }
 
-          // scope销毁时同步移除对应订阅行为
           if (scope && (scope.constructor === $rootScope.constructor)) {
+            // scope销毁时同步移除对应订阅行为
             scope.$on('$destroy', unSubscribe.bind(null, listener));
           }
 
