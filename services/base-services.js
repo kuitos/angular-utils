@@ -81,7 +81,7 @@
          * @param topic 订阅消息名
          * @param listener 消息发布时触发的回调
          * @param scope 订阅行为发生所在的scope，用于在scope销毁时作解绑操作
-         * @returns {Function} 取消订阅的反注册函数，
+         * @returns {Function} 取消订阅的反注册函数
          */
         subscribe: function (topic, listener, scope) {
 
