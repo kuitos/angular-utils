@@ -93,6 +93,7 @@
             var listenerIndex;
 
             if (!listener) {
+              // 清空
               topicListeners.length = 0;
             } else {
 
