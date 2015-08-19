@@ -70,7 +70,7 @@
 
     /* ******************************** factories ******************************** */
     // 中介者模式。用于解决各模块间无法通过 $scope.$emit $scope.$on 等方式实现通信的问题(例如兄弟模块间通信)
-    .factory("Mediator", ["$log", function ($log) {
+    .factory("Mediator", ["$log", "$rootScope", function ($log, $rootScope) {
 
       var topics = {};
 
@@ -80,16 +80,15 @@
          * 订阅消息
          * @param topic 订阅消息名
          * @param listener 消息发布时触发的回调
-         * @returns {Function} 取消订阅的反注册函数
+         * @param scope 订阅行为发生所在的scope，用于在scope销毁时作解绑操作
+         * @returns {Function} 取消订阅的反注册函数，
          */
-        subscribe: function (topic, listener) {
+        subscribe: function (topic, listener, scope) {
 
           var topicListeners = topics[topic] = topics[topic] || [];
 
-          topicListeners.push(listener);
-
-          // 可清除指定监听器，如果不传则清除全部监听器
-          return function unsubscribe(listener) {
+          // 可清除指定监听器，如果不传则清除对应topic全部监听器
+          function unSubscribe(listener) {
 
             var listenerIndex;
 
@@ -103,6 +102,15 @@
               }
             }
           }
+
+          // scope销毁时同步移除对应订阅行为
+          if (scope && (scope.constructor === $rootScope.constructor)) {
+            scope.$on('$destroy', unSubscribe.bind(null, listener));
+          }
+
+          topicListeners.push(listener);
+
+          return unSubscribe;
         },
 
         /**
@@ -184,8 +192,10 @@
             "query" : {method: "GET", isArray: true, cache: restHttpCache, transformResponse: transformResponse},
             // 保存(新增)
             "save"  : {method: "POST", savingStatus: true, cache: restHttpCache, transformResponse: transformResponse},
-            // 保存(修改)
+            // 修改(全量)
             "update": {method: "PUT", savingStatus: true, cache: restHttpCache, transformResponse: transformResponse},
+            // 修改(部分)
+            "patch" : {method: "PATCH", savingStatus: true, cache: restHttpCache, transformResponse: transformResponse},
             // 逻辑删除
             "remove": {method: "DELETE", savingStatus: true, cache: restHttpCache, transformResponse: transformResponse},
             // 物理删除
