@@ -173,7 +173,7 @@
         }
 
         // $resource会把基础类型(number,string)解析成对象从而引发bug
-        // 如果返回结果为基本类型，则将其包装一层调用者通过res._data访问
+        // 如果返回结果为基本类型，则将其包装一层，调用者通过res._data访问
         function transformPrimitiveResponse(res) {
           var serializedVal = angular.fromJson(res);
           return isPrimitive(serializedVal) ? {_data: serializedVal} : serializedVal;
