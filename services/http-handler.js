@@ -153,44 +153,43 @@
     .provider("tipsHandler", function () {
 
       var _tipsHandler = {
-        error  : angular.noop,
-        warning: angular.noop,
-        success: angular.noop
-      };
+          error  : angular.noop,
+          warning: angular.noop,
+          success: angular.noop
+        },
+
+        _configuredTipsHandler;
 
       /**
        * 设置具体的tips处理器
        * @param tipsHandler {String|Object} String:service string Object:handler instance
        */
       this.setTipsHandler = function (tipsHandler) {
+        _configuredTipsHandler = tipsHandler;
+      };
 
-        var tipsHandlerInstance,
-          $injector = angular.injector(['ng']),
-          $log = $injector.get('$log');
+      this.$get = ['$injector', '$log', function ($injector, $log) {
 
-        if (angular.isString(tipsHandler)) {
+        var verifiedTipsHandler;
+
+        if (angular.isString(_configuredTipsHandler)) {
 
           try {
-            tipsHandlerInstance = $injector.get(tipsHandler);
+            verifiedTipsHandler = $injector.get(_configuredTipsHandler);
           } catch (err) {
-            $log.error('%s服务未被正常初始化', tipsHandler);
+            $log.error('%s服务未被正常初始化', _configuredTipsHandler);
           }
 
-        } else if (angular.isObject(tipsHandler)) {
-          tipsHandlerInstance = tipsHandler;
+        } else if (angular.isObject(_configuredTipsHandler)) {
+          verifiedTipsHandler = _configuredTipsHandler;
         }
 
-        _tipsHandler = angular.extend(_tipsHandler, tipsHandlerInstance);
-
-      };
-
-      this.$get = function () {
-        return _tipsHandler;
-      };
+        return angular.extend(_tipsHandler, verifiedTipsHandler);
+      }];
 
     })
 
-    .run(["$rootScope", '$injector', '$log', function ($rootScope, $injector, $log) {
+    .run(["$rootScope", function ($rootScope) {
 
       /** loading状态切换 **/
       _app.isLoading = function (flag) {
