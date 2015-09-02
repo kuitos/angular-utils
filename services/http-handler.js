@@ -13,7 +13,7 @@
 
   angular.module("ngUtils.services.httpHandler", [])
 
-    .config(["$httpProvider", function ($httpProvider) {
+    .config(["$httpProvider", 'httpHandlerBlacklist', function ($httpProvider, httpHandlerBlacklist) {
 
       var GET = 'GET',
         /** http请求相关状态(loading,saving)切换 */
@@ -30,6 +30,14 @@
           _app.isSaving(false); // end saving
         };
 
+      function isInHttpBlackList(url) {
+
+        return httpHandlerBlacklist.some(function (blackUrl) {
+          return url.test(blackUrl);
+        });
+
+      }
+
       /*************************** http超时时间设为30s ***************************/
       $httpProvider.defaults.timeout = 30 * 1000;
       /*************************** 禁用浏览器缓存 ***************************/
@@ -45,21 +53,27 @@
 
             request: function (config) {
 
-              count++;
-              if (!loading) {
+              // 不在黑名单中的url才进拦截器
+              if (!isInHttpBlackList(config.url)) {
 
-                // saving start
-                if (config.savingStatus) {
-                  saving = true;
-                  _app.isSaving(true);
+                count++;
+
+                if (!loading) {
+
+                  // saving start
+                  if (config.savingStatus) {
+                    saving = true;
+                    _app.isSaving(true);
+                  }
+
+                  $timeout(function () {
+                    if (!loading && count > 0) {
+                      loading = true;
+                      _app.isLoading(true);
+                    }
+                  }, 500); // if no response in 500ms, begin loading
                 }
 
-                $timeout(function () {
-                  if (!loading && count > 0) {
-                    loading = true;
-                    _app.isLoading(true);
-                  }
-                }, 500); // if no response in 500ms, begin loading
               }
 
               return config;
@@ -75,27 +89,31 @@
                 responseBody = res.data,
                 cache;
 
-              count--;
-              // 响应结束，清除相关状态
-              if (count === 0) {
-                stopSaving();
-                if (loading) {
-                  stopLoading();
+              if (!isInHttpBlackList(config.url)) {
+
+                count--;
+
+                // 响应结束，清除相关状态
+                if (count === 0) {
+                  stopSaving();
+                  if (loading) {
+                    stopLoading();
+                  }
                 }
-              }
 
-              /**
-               * 若请求为非查询操作(save,update,delete等更新操作)，成功后需要重新刷新cache(清空对应cache)。默认cache为defaultRestCache
-               * 查询请求中含有私有参数_forceRefresh时也需要强制刷新
-               */
-              if ((config.method !== GET && config.cache) || (config.method === GET && config.params._forceRefresh)) {
+                /**
+                 * 若请求为非查询操作(save,update,delete等更新操作)，成功后需要重新刷新cache(清空对应cache)。默认cache为defaultRestCache
+                 * 查询请求中含有私有参数_forceRefresh时也需要强制刷新
+                 */
+                if ((config.method !== GET && config.cache) || (config.method === GET && config.params._forceRefresh)) {
 
-                cache = angular.isObject(config.cache) ? config.cache : $cacheFactory.get("defaultRestCache");
-                cache.removeAll();
+                  cache = angular.isObject(config.cache) ? config.cache : $cacheFactory.get("defaultRestCache");
+                  cache.removeAll();
 
-                // 关注保存状态则弹出成功提示
-                if (config.savingStatus) {
-                  tipsHandler.success(responseBody.message);
+                  // 关注保存状态则弹出成功提示
+                  if (config.savingStatus) {
+                    tipsHandler.success(responseBody.message);
+                  }
                 }
               }
 
@@ -104,26 +122,35 @@
 
             responseError: function (rejection) {
 
-              count--;
-              // 响应结束，清除相关状态
-              if (count === 0) {
-                stopSaving();
-                if (loading) {
-                  stopLoading();
+              var config = rejection.config;
+
+              if (!isInHttpBlackList(config.url)) {
+
+                count--;
+                // 响应结束，清除相关状态
+                if (count === 0) {
+                  stopSaving();
+                  if (loading) {
+                    stopLoading();
+                  }
                 }
+
+                // 失败弹出错误提示信息
+                tipsHandler.error("请求错误!");
+                $log.error("接口 %s 请求错误! 状态：%s 错误信息：%s", config.url, rejection.status, rejection.statusText);
               }
 
-              // 失败弹出错误提示信息
-              tipsHandler.error("请求错误!");
-              $log.error("接口 %s 请求错误! 状态：%s 错误信息：%s", rejection.config.url, rejection.status, rejection.statusText);
               return $q.reject(rejection);
             }
           }
         }]);
     }])
 
+    /* http处理器黑名单列表(该列表中的url不走httpHandler拦截器) */
+    .constant('httpHandlerBlacklist', [])
+
     /* 提示信息provider，用于配置错误提示处理器 **/
-    .provider("tipsHandler", function () {
+    .provider("tipsHandler", ['$injector', '$log', function ($injector, $log) {
 
       var _tipsHandler = {
         error  : angular.noop,
@@ -131,19 +158,35 @@
         success: angular.noop
       };
 
+      /**
+       * 设置具体的tips处理器
+       * @param tipsHandler {String|Object} String:service string Object:handler instance
+       */
       this.setTipsHandler = function (tipsHandler) {
-        _tipsHandler = angular.extend(_tipsHandler, tipsHandler);
+
+        var tipsHandlerInstance = {};
+
+        if (angular.isString(tipsHandler)) {
+
+          try {
+            tipsHandlerInstance = $injector.get(tipsHandler);
+          } catch (err) {
+            $log.error('%s服务未被正常初始化', tipsHandler);
+          }
+
+        } else if (angular.isObject(tipsHandler)) {
+          tipsHandlerInstance = tipsHandler;
+        }
+
+        _tipsHandler = angular.extend(_tipsHandler, tipsHandlerInstance);
+
       };
 
       this.$get = function () {
-        return {
-          error  : _tipsHandler.error,
-          warning: _tipsHandler.warning,
-          success: _tipsHandler.success
-        }
+        return _tipsHandler;
       };
 
-    })
+    }])
 
     .run(["$rootScope", function ($rootScope) {
 
