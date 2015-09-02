@@ -46,8 +46,8 @@
       $httpProvider.defaults.headers.common["X-Requested-With"] = "https://github.com/kuitos";
 
       /******************** http拦截器，用于统一处理错误信息、消息缓存、请求响应状态、响应结果处理等 **********************/
-      $httpProvider.interceptors.push(["$q", "$log", "$timeout", "$cacheFactory", "tipsHandler",
-        function ($q, $log, $timeout, $cacheFactory, tipsHandler) {
+      $httpProvider.interceptors.push(["$q", "$log", "$timeout", "$cacheFactory", '$injector',
+        function ($q, $log, $timeout, $cacheFactory, $injector) {
 
           return {
 
@@ -112,7 +112,7 @@
 
                   // 关注保存状态则弹出成功提示
                   if (config.savingStatus) {
-                    tipsHandler.success(responseBody.message);
+                    $injector.get('tipsHandler').success(responseBody.message);
                   }
                 }
               }
@@ -136,7 +136,7 @@
                 }
 
                 // 失败弹出错误提示信息
-                tipsHandler.error(rejection.data || "请求错误!");
+                $injector.get('tipsHandler').error(rejection.data || "请求错误!");
                 $log.error("接口 %s 请求错误! 状态：%s 错误信息：%s", config.url, rejection.status, rejection.statusText);
               }
 
