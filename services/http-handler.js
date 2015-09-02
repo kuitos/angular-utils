@@ -136,7 +136,7 @@
                 }
 
                 // 失败弹出错误提示信息
-                tipsHandler.error("请求错误!");
+                tipsHandler.error(rejection.data || "请求错误!");
                 $log.error("接口 %s 请求错误! 状态：%s 错误信息：%s", config.url, rejection.status, rejection.statusText);
               }
 
@@ -164,14 +164,16 @@
        */
       this.setTipsHandler = function (tipsHandler) {
 
-        var tipsHandlerInstance;
+        var tipsHandlerInstance,
+          $injector = angular.includes(['ng']),
+          $log = $injector.get('$log');
 
         if (angular.isString(tipsHandler)) {
 
           try {
-            tipsHandlerInstance = _app.$injector.get(tipsHandler);
+            tipsHandlerInstance = $injector.get(tipsHandler);
           } catch (err) {
-            _app.$log.error('%s服务未被正常初始化', tipsHandler);
+            $log.error('%s服务未被正常初始化', tipsHandler);
           }
 
         } else if (angular.isObject(tipsHandler)) {
@@ -198,9 +200,6 @@
       _app.isSaving = function (flag) {
         $rootScope.saving = flag;
       };
-
-      _app.$injector = $injector;
-      _app.$log = $log;
 
     }]);
 
