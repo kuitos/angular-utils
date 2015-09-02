@@ -105,7 +105,7 @@
                  * 若请求为非查询操作(save,update,delete等更新操作)，成功后需要重新刷新cache(清空对应cache)。默认cache为defaultRestCache
                  * 查询请求中含有私有参数_forceRefresh时也需要强制刷新
                  */
-                if ((config.method !== GET && config.cache) || (config.method === GET && config.params._forceRefresh)) {
+                if ((config.method !== GET && config.cache) || (config.method === GET && config.params && config.params._forceRefresh)) {
 
                   cache = angular.isObject(config.cache) ? config.cache : $cacheFactory.get("defaultRestCache");
                   cache.removeAll();
@@ -150,7 +150,7 @@
     .constant('httpHandlerBlacklist', [])
 
     /* 提示信息provider，用于配置错误提示处理器 **/
-    .provider("tipsHandler", ['$injector', '$log', function ($injector, $log) {
+    .provider("tipsHandler", function () {
 
       var _tipsHandler = {
         error  : angular.noop,
@@ -164,14 +164,14 @@
        */
       this.setTipsHandler = function (tipsHandler) {
 
-        var tipsHandlerInstance = {};
+        var tipsHandlerInstance;
 
         if (angular.isString(tipsHandler)) {
 
           try {
-            tipsHandlerInstance = $injector.get(tipsHandler);
+            tipsHandlerInstance = _app.$injector.get(tipsHandler);
           } catch (err) {
-            $log.error('%s服务未被正常初始化', tipsHandler);
+            _app.$log.error('%s服务未被正常初始化', tipsHandler);
           }
 
         } else if (angular.isObject(tipsHandler)) {
@@ -186,9 +186,9 @@
         return _tipsHandler;
       };
 
-    }])
+    })
 
-    .run(["$rootScope", function ($rootScope) {
+    .run(["$rootScope", '$injector', '$log', function ($rootScope, $injector, $log) {
 
       /** loading状态切换 **/
       _app.isLoading = function (flag) {
@@ -198,6 +198,9 @@
       _app.isSaving = function (flag) {
         $rootScope.saving = flag;
       };
+
+      _app.$injector = $injector;
+      _app.$log = $log;
 
     }]);
 
