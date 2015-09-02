@@ -165,7 +165,7 @@
       this.setTipsHandler = function (tipsHandler) {
 
         var tipsHandlerInstance,
-          $injector = angular.includes(['ng']),
+          $injector = angular.injector(['ng']),
           $log = $injector.get('$log');
 
         if (angular.isString(tipsHandler)) {
