@@ -171,7 +171,7 @@
 
         // 默认cache为defaultRestCache
         // 自定义配置(配合$http interceptor) saveStatus:该操作将维护一个保存状态
-        var restHttpCache = cache || defaultRestCache,
+        var restHttpCache = (cache === undefined) ? defaultRestCache : cache,
 
           DEFAULT_ACTIONS = {
             // 查询，结果为对象
