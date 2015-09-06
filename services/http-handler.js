@@ -13,21 +13,19 @@
 
   angular.module("ngUtils.services.httpHandler", [])
 
+    /* http处理器黑名单列表(该列表中的url不走httpHandler拦截器) */
+    .constant('httpHandlerBlacklist', [])
+
     .config(["$httpProvider", 'httpHandlerBlacklist', function ($httpProvider, httpHandlerBlacklist) {
 
       var GET = 'GET',
-        /** http请求相关状态(loading,saving)切换 */
+        /** http请求相关状态(loading)切换 */
         count = 0,
         loading = false,
-        saving = false,
 
         stopLoading = function () {
           loading = false;
           _app.isLoading(false); // end loading
-        },
-        stopSaving = function () {
-          saving = false;
-          _app.isSaving(false); // end saving
         };
 
       function isInHttpBlackList(url) {
@@ -60,12 +58,7 @@
 
                 if (!loading) {
 
-                  // saving start
-                  if (config.savingStatus) {
-                    saving = true;
-                    _app.isSaving(true);
-                  }
-
+                  // loading start
                   $timeout(function () {
                     if (!loading && count > 0) {
                       loading = true;
@@ -86,7 +79,6 @@
 
             response: function (res) {
               var config = res.config,
-                responseBody = res.data,
                 cache;
 
               if (!isInHttpBlackList(config.url)) {
@@ -95,7 +87,6 @@
 
                 // 响应结束，清除相关状态
                 if (count === 0) {
-                  stopSaving();
                   if (loading) {
                     stopLoading();
                   }
@@ -106,14 +97,8 @@
                  * 查询请求中含有私有参数_forceRefresh时也需要强制刷新
                  */
                 if ((config.method !== GET && config.cache) || (config.method === GET && config.params && config.params._forceRefresh)) {
-
                   cache = angular.isObject(config.cache) ? config.cache : $cacheFactory.get("defaultRestCache");
                   cache.removeAll();
-
-                  // 关注保存状态则弹出成功提示
-                  if (config.savingStatus) {
-                    $injector.get('tipsHandler').success(responseBody.message);
-                  }
                 }
               }
 
@@ -129,13 +114,14 @@
                 count--;
                 // 响应结束，清除相关状态
                 if (count === 0) {
-                  stopSaving();
                   if (loading) {
                     stopLoading();
                   }
                 }
 
                 // 失败弹出错误提示信息
+                // 这里通过$injector.get()的方式获取tipsHandler服务，而不是直接注入tipsHandler的方式，是因为tipsHandler实例可能是依赖于$http的服务(如tipsHandler内部会请求模板)
+                // 如果存在这种循环依赖，angular会抛出cdep(Circular dependency found)异常
                 $injector.get('tipsHandler').error(rejection.data || "请求错误!");
                 $log.error("接口 %s 请求错误! 状态：%s 错误信息：%s", config.url, rejection.status, rejection.statusText);
               }
@@ -145,9 +131,6 @@
           }
         }]);
     }])
-
-    /* http处理器黑名单列表(该列表中的url不走httpHandler拦截器) */
-    .constant('httpHandlerBlacklist', [])
 
     /* 提示信息provider，用于配置错误提示处理器 **/
     .provider("tipsHandler", function () {
@@ -162,7 +145,7 @@
 
       /**
        * 设置具体的tips处理器
-       * @param tipsHandler {String|Object} String:service string Object:handler instance
+       * @param tipsHandler {String|Object} String:service Object:handler instance
        */
       this.setTipsHandler = function (tipsHandler) {
         _configuredTipsHandler = tipsHandler;
@@ -194,10 +177,6 @@
       /** loading状态切换 **/
       _app.isLoading = function (flag) {
         $rootScope.loading = flag;
-      };
-
-      _app.isSaving = function (flag) {
-        $rootScope.saving = flag;
       };
 
     }]);
