@@ -375,6 +375,8 @@
 
         return Resource;
       }
+
+      return resourceFactory;
     }
 
   }
