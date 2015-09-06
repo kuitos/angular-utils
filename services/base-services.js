@@ -169,38 +169,25 @@
        */
       return function (url, cache, params, additionalActions) {
 
-        function isPrimitive(value) {
-          return !!~['number', 'string'].indexOf(typeof value);
-        }
-
-        // $resource会把基础类型(number,string)解析成对象从而引发bug
-        // 如果返回结果为基本类型，则将其包装一层，调用者通过res._data访问
-        function transformPrimitiveResponse(res) {
-          var serializedVal = angular.fromJson(res);
-          return isPrimitive(serializedVal) ? {_data: serializedVal} : serializedVal;
-        }
-
         // 默认cache为defaultRestCache
         // 自定义配置(配合$http interceptor) saveStatus:该操作将维护一个保存状态
         var restHttpCache = cache || defaultRestCache,
 
-          transformResponse = $http.defaults.transformResponse.concat(transformPrimitiveResponse),
-
           DEFAULT_ACTIONS = {
             // 查询，结果为对象
-            "get"   : {method: "GET", cache: restHttpCache, transformResponse: transformResponse},
+            "get"   : {method: "GET", cache: restHttpCache},
             // 查询，结果为数组
-            "query" : {method: "GET", isArray: true, cache: restHttpCache, transformResponse: transformResponse},
+            "query" : {method: "GET", isArray: true, cache: restHttpCache},
             // 保存(新增)
-            "save"  : {method: "POST", savingStatus: true, cache: restHttpCache, transformResponse: transformResponse},
+            "save"  : {method: "POST", cache: restHttpCache},
             // 修改(全量)
-            "update": {method: "PUT", savingStatus: true, cache: restHttpCache, transformResponse: transformResponse},
+            "update": {method: "PUT", cache: restHttpCache},
             // 修改(部分)
-            "patch" : {method: "PATCH", savingStatus: true, cache: restHttpCache, transformResponse: transformResponse},
+            "patch" : {method: "PATCH", cache: restHttpCache},
             // 逻辑删除
-            "remove": {method: "DELETE", savingStatus: true, cache: restHttpCache, transformResponse: transformResponse},
+            "remove": {method: "DELETE", cache: restHttpCache},
             // 物理删除
-            "delete": {method: "DELETE", savingStatus: true, cache: restHttpCache, transformResponse: transformResponse}
+            "delete": {method: "DELETE", cache: restHttpCache}
           };
 
         return $resource(restConfig.apiPrefix + url, params, angular.extend(DEFAULT_ACTIONS, additionalActions));
