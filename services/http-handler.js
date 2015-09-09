@@ -93,11 +93,11 @@
                 }
 
                 /**
-                 * 若请求为非查询操作(save,update,delete等更新操作)，成功后需要重新刷新cache(清空对应cache)。默认cache为defaultRestCache
+                 * 若请求为非查询操作(save,update,delete等更新操作)，成功后需要重新刷新cache(清空对应cache)。默认cache为$http
                  * 查询请求中含有私有参数_forceRefresh时也需要强制刷新
                  */
                 if ((config.method !== GET && config.cache) || (config.method === GET && config.params && config.params._forceRefresh)) {
-                  cache = angular.isObject(config.cache) ? config.cache : $cacheFactory.get("defaultRestCache");
+                  cache = angular.isObject(config.cache) ? config.cache : $cacheFactory.get("$http");
                   cache.removeAll();
                 }
               }
