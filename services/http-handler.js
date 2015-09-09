@@ -47,6 +47,11 @@
       $httpProvider.interceptors.push(["$q", "$log", "$timeout", "$cacheFactory", '$injector',
         function ($q, $log, $timeout, $cacheFactory, $injector) {
 
+          // 清除cache
+          function clearCache(config) {
+            (angular.isObject(config.cache) ? config.cache : $cacheFactory.get("$http")).removeAll();
+          }
+
           return {
 
             request: function (config) {
@@ -69,6 +74,13 @@
 
               }
 
+              /**
+               * 查询请求中含有私有参数_forceRefresh时也需要强制刷新
+               */
+              if (config.method === GET && config.params && config.params._forceRefresh) {
+                clearCache(config);
+              }
+
               return config;
             },
 
@@ -78,8 +90,7 @@
             },
 
             response: function (res) {
-              var config = res.config,
-                cache;
+              var config = res.config;
 
               if (!isInHttpBlackList(config.url)) {
 
@@ -94,11 +105,10 @@
 
                 /**
                  * 若请求为非查询操作(save,update,delete等更新操作)，成功后需要重新刷新cache(清空对应cache)。默认cache为$http
-                 * 查询请求中含有私有参数_forceRefresh时也需要强制刷新
+
                  */
-                if ((config.method !== GET && config.cache) || (config.method === GET && config.params && config.params._forceRefresh)) {
-                  cache = angular.isObject(config.cache) ? config.cache : $cacheFactory.get("$http");
-                  cache.removeAll();
+                if ((config.method !== GET && config.cache)) {
+                  clearCache(config);
                 }
               }
 
