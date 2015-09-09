@@ -105,7 +105,6 @@
 
                 /**
                  * 若请求为非查询操作(save,update,delete等更新操作)，成功后需要重新刷新cache(清空对应cache)。默认cache为$http
-
                  */
                 if ((config.method !== GET && config.cache)) {
                   clearCache(config);
