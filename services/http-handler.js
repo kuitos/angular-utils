@@ -129,7 +129,9 @@
                 }
 
                 // 清理相应缓存
-                clearCache(config, config.url);
+                if (config.cache) {
+                  clearCache(config, config.url);
+                }
 
                 // 失败弹出错误提示信息
                 // 这里通过$injector.get()的方式获取tipsHandler服务，而不是直接注入tipsHandler的方式，是因为tipsHandler实例可能是依赖于$http的服务(如tipsHandler内部会请求模板)
