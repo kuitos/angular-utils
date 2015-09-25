@@ -48,8 +48,8 @@
         function ($q, $log, $timeout, $cacheFactory, $injector) {
 
           // 清除cache
-          function clearCache(config) {
-            (angular.isObject(config.cache) ? config.cache : $cacheFactory.get("$http")).removeAll();
+          function clearCache(config, key) {
+            (angular.isObject(config.cache) ? config.cache : $cacheFactory.get("$http"))[key ? 'remove' : 'removeAll'](key);
           }
 
           return {
@@ -128,11 +128,15 @@
                   }
                 }
 
+                // 清理相应缓存
+                clearCache(config, config.url);
+
                 // 失败弹出错误提示信息
                 // 这里通过$injector.get()的方式获取tipsHandler服务，而不是直接注入tipsHandler的方式，是因为tipsHandler实例可能是依赖于$http的服务(如tipsHandler内部会请求模板)
                 // 如果存在这种循环依赖，angular会抛出cdep(Circular dependency found)异常
                 $injector.get('tipsHandler').error(rejection.data || "请求错误!");
                 $log.error("接口 %s 请求错误! 状态：%s 错误信息：%s", config.url, rejection.status, rejection.statusText);
+
               }
 
               return $q.reject(rejection);
