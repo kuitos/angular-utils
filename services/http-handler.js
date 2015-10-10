@@ -175,7 +175,15 @@
           try {
             verifiedTipsHandler = $injector.get(_configuredTipsHandler);
           } catch (err) {
-            $log.error('%s服务未被正常初始化', _configuredTipsHandler);
+            $log.error('%s服务未被正常初始化(%s服务get失败)', _configuredTipsHandler, _configuredTipsHandler);
+          }
+
+        } else if (angular.isFunction(_configuredTipsHandler) || angular.isArray(_configuredTipsHandler)) {
+
+          try {
+            verifiedTipsHandler = $injector.invoke(_configuredTipsHandler);
+          } catch (err) {
+            $log.error('%s服务未被正常初始化(%s服务invoke失败)', _configuredTipsHandler, _configuredTipsHandler);
           }
 
         } else if (angular.isObject(_configuredTipsHandler)) {
