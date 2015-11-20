@@ -56,9 +56,9 @@
     .constant('baseUtils', {
       PerformanceUtils: PerformanceUtils
     })
-    .run('$timeout', function ($timeout) {
+    .run(['$timeout', function ($timeout) {
       _services.$timeout = $timeout;
-    });
+    }]);
 
 })(window.angular);
 
