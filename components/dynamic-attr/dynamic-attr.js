@@ -32,9 +32,9 @@
             if (ngEventAttrValue && (ngEventAttrValue = ngEventAttrValue.trim())) {
 
               collectedNgEventMapper[ngEventAttr] = {
-                eventName : eventName,
+                eventName: eventName,
                 expression: ngEventAttrValue,
-                fn        : $parse(ngEventAttrValue, null, true)
+                fn: $parse(ngEventAttrValue, null, true)
               };
             }
 
@@ -74,7 +74,7 @@
                     } else {
 
                       // 状态为false时加入样式并移除对应事件回调
-                      element.addClass(attribute + "-disabled").removeAttr(attribute).unbind(originalAttrInfo.eventName);
+                      element.addClass(attribute + "-disabled").removeAttr(attribute).unbind(originalAttrInfo.eventName, originalAttrInfo.fn);
                     }
 
                   } else {

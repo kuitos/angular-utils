@@ -36,8 +36,6 @@
 
       }
 
-      /*************************** http超时时间设为30s ***************************/
-      $httpProvider.defaults.timeout = 30 * 1000;
       /*************************** 禁用浏览器缓存 ***************************/
       $httpProvider.defaults.headers.common["Cache-Control"] = "no-cache";
       /* 广告时间哈哈.... */

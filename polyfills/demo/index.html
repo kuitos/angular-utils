@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>demo</title>
+</head>
+<body ng-app="app">
+
+<a ui-sref="index1">index1</a>
+<a ui-sref="index2">index2</a>
+
+<ui-view></ui-view>
+
+<script src="../../node_modules/angular/angular.js"></script>
+<script src="../../node_modules/ui-router/release/angular-ui-router.js"></script>
+<script src="../../node_modules/browser-script-loader/script-loader.js"></script>
+<script src="../ui-router-require-polyfill.js"></script>
+
+<script>
+
+  angular
+      .module('app', ['ui.router', 'ui.router.requirePolyfill'])
+      .config(['$stateProvider', '$urlRouterProvider', Configuration]);
+
+  Configuration.$inject = ['$stateProvider', '$urlRouterProvider'];
+  function Configuration($stateProvider, $urlRouterProvider) {
+
+    $urlRouterProvider.otherwise("/");
+
+    $stateProvider
+
+        .state('home', {
+          url        : '/',
+          templateUrl: 'partials/home.html'
+        })
+
+        .state('index1', {
+          url        : '/index1',
+          templateUrl: 'partials/index1.html'
+        })
+
+        .state('index2', {
+          url        : '/index2',
+          templateUrl: 'partials/index2.html'
+        });
+
+  }
+
+</script>
+</body>
+</html>

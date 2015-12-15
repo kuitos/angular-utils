@@ -1,6 +1,6 @@
 {
   "name": "kuitos-angular-utils",
-  "version": "1.2.8",
+  "version": "1.2.9",
   "description": "a useful & powerful angular utils collections, without dependencies",
   "main": "index.html",
   "scripts": {
@@ -21,8 +21,10 @@
     "url": "https://github.com/kuitos/angular-utils/issues"
   },
   "homepage": "https://github.com/kuitos/angular-utils",
-  "dependencies": {
-    "angular": ">=1.x.x",
-    "angular-resource": ">=1.x.x"
+  "devDependencies": {
+    "angular": "^1.4.8",
+    "angular-resource": "^1.4.8",
+    "browser-script-loader": "^3.0.1",
+    "ui-router": "^0.2.15"
   }
 }
