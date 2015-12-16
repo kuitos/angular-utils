@@ -7,6 +7,10 @@
 
   'use strict';
 
-  console.log('index2');
+  angular
+    .module('test2', ['ui.router.requirePolyfill'])
+    .run(function () {
+      console.log('test2');
+    });
 
 })();

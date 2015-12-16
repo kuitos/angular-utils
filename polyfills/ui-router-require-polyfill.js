@@ -5,16 +5,25 @@
  * 基于ui-router & script-loader实现的按需加载方案,可在不修改一行js代码的情况下实现angular框架的按需加载
  * 依赖于 browser-script-loader (https://github.com/kuitos/script-loader)
  */
-;(function (angular, ScriptLoader, undefined) {
+;(function (angular, undefined) {
 
   'use strict';
 
   angular
-    .module('ui.router.requirePolyfill', ['ng', 'ui.router'])
-    .decorator('uiViewDirective', DecoratorConstructor);
+    .module('ui.router.requirePolyfill', ['ng', 'ui.router', 'oc.lazyLoad'])
+    .decorator('uiViewDirective', DecoratorConstructor)
+    .config(config);
 
-  DecoratorConstructor.$inject = ['$delegate', '$compile', '$controller', '$interpolate', '$state'];
-  function DecoratorConstructor($delegate, $compile, $controller, $interpolate, $state) {
+  config.$inject = ['$ocLazyLoadProvider'];
+  function config($ocLazyLoadProvider) {
+    $ocLazyLoadProvider.config({debug: true});
+  }
+
+  /**
+   * 装饰uiView指令,给其加入按需加载的能力
+   */
+  DecoratorConstructor.$inject = ['$delegate', '$log', '$q', '$compile', '$controller', '$interpolate', '$state', '$ocLazyLoad'];
+  function DecoratorConstructor($delegate, $log, $q, $compile, $controller, $interpolate, $state, $ocLazyLoad) {
 
     // 移除原始指令逻辑
     $delegate.pop();
@@ -61,7 +70,7 @@
 
           // 模版中不含脚本则直接编译,否则在获取完脚本之后再做编译
           if (processResult.scripts.length) {
-            ScriptLoader.loadAsync.apply(ScriptLoader, processResult.scripts.concat([compileTemplate]));
+            loadScripts(processResult.scripts).then(compileTemplate);
           } else {
             compileTemplate();
           }
@@ -85,28 +94,54 @@
 
     /**
      * 从模版中解析出script外链脚本
-     * @return tpl:处理后的模版字符串 scripts:提取出来的脚本链接
+     * @return tpl:处理后的模版字符串 scripts:提取出来的脚本链接,数组索引对应脚本优先级, 数据结构: [['a.js','b.js'], ['c.js']]
      */
     function processTpl(tpl) {
 
-      var SCRIPT_TAG_REGEX = /(<script\s+((?!type=('|")text\/ng-template('|")).)*)|(<script\s*)>.*<\/script>/gi,
-        SCRIPT_SRC_REGEX = /.*\ssrc="(.*)".*/,
+      var SCRIPT_TAG_REGEX = /<script\s+((?!type=('|")text\/ng-template('|")).)*>.*<\/script>/gi,
+        SCRIPT_SRC_REGEX = /.*\ssrc="(\S+)".*/,
+        SCRIPT_SEQ_REGEX = /.*\sseq="(\S+)".*/,
         scripts = [];
 
       // 处理模版,将script抽取出来
       tpl = tpl.replace(SCRIPT_TAG_REGEX, function (match) {
-        // 抽取src部分脚本存入数组
-        scripts.push(match.replace(SCRIPT_SRC_REGEX, "$1"));
+
+        // 抽取src部分按设置的优先级存入数组,默认优先级为0(最高优先级)
+        var seq = match.replace(SCRIPT_SEQ_REGEX, "$1") || 0;
+        scripts[seq] = scripts[seq] || [];
+        scripts[seq].push(match.replace(SCRIPT_SRC_REGEX, "$1"));
+
         return '<!-- script replaced -->';
       });
 
       return {
         tpl    : tpl,
-        scripts: scripts
+        scripts: scripts.filter(function (script) {
+          // 过滤空的索引
+          return !!script;
+        })
       };
 
     }
 
+    // 按脚本优先级加载脚本
+    function loadScripts(scripts) {
+
+      var promise = $ocLazyLoad.load(scripts.shift()),
+        nextGroup;
+
+      while (scripts.length) {
+
+        nextGroup = scripts.shift();
+
+        promise = promise.then(function () {
+          return $ocLazyLoad.load(nextGroup);
+        });
+      }
+
+      return promise;
+    }
+
   }
 
-})(window.angular, window.ScriptLoader);
+})(window.angular);
