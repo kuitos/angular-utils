@@ -11,77 +11,65 @@
 
   angular
     .module('ui.router.requirePolyfill', ['ng', 'ui.router'])
-    .decorator('uiViewDirective', decorator);
+    .decorator('uiViewDirective', DecoratorConstructor);
 
-  function decorator($delegate) {
-
-    // 获取应用的injector
-    var injector = angular.element(document.querySelector('[ng-app]')).injector();
-
-    /**
-     * 在原始ui-router的模版加载逻辑中加入脚本请求代码,实现按需加载需求
-     */
-    $ViewDirectiveFill.$inject = ['$compile', '$controller', '$interpolate', '$state'];
-    function $ViewDirectiveFill($compile, $controller, $interpolate, $state) {
-
-      return {
-
-        restrict: 'ECA',
-        priority: -400,
-        compile : function (tElement) {
-          var initial = tElement.html();
-          return function (scope, $element, attrs) {
-
-            var current = $state.$current,
-              name = getUiViewName(scope, attrs, $element, $interpolate),
-              locals = current && current.locals[name];
-
-            if (!locals) {
-              return;
-            }
-
-            $element.data('$uiView', {name: name, state: locals.$$state});
-
-            var template = locals.$template ? locals.$template : initial,
-              processResult = processTpl(template);
-
-            var compileTemplate = function () {
-              $element.html(processResult.tpl);
-
-              var link = $compile($element.contents());
-
-              if (locals.$$controller) {
-                locals.$scope = scope;
-                locals.$element = $element;
-                var controller = $controller(locals.$$controller, locals);
-                if (locals.$$controllerAs) {
-                  scope[locals.$$controllerAs] = controller;
-                }
-                $element.data('$ngControllerController', controller);
-                $element.children().data('$ngControllerController', controller);
-              }
-
-              link(scope);
-            };
-
-            // 模版中不含脚本则直接编译,否则在获取完脚本之后再做编译
-            if (processResult.scripts.length) {
-              ScriptLoader.loadAsync.apply(ScriptLoader, processResult.scripts.concat([compileTemplate]));
-            } else {
-              compileTemplate();
-            }
-
-          };
-        }
-
-      }
-
-    }
+  DecoratorConstructor.$inject = ['$delegate', '$compile', '$controller', '$interpolate', '$state'];
+  function DecoratorConstructor($delegate, $compile, $controller, $interpolate, $state) {
 
     // 移除原始指令逻辑
     $delegate.pop();
-    // 加入复写后的逻辑
-    $delegate.push(injector.invoke($ViewDirectiveFill));
+    // 在原始ui-router的模版加载逻辑中加入脚本请求代码,实现按需加载需求
+    $delegate.push({
+
+      restrict: 'ECA',
+      priority: -400,
+      compile : function (tElement) {
+        var initial = tElement.html();
+        return function (scope, $element, attrs) {
+
+          var current = $state.$current,
+            name = getUiViewName(scope, attrs, $element, $interpolate),
+            locals = current && current.locals[name];
+
+          if (!locals) {
+            return;
+          }
+
+          $element.data('$uiView', {name: name, state: locals.$$state});
+
+          var template = locals.$template ? locals.$template : initial,
+            processResult = processTpl(template);
+
+          var compileTemplate = function () {
+            $element.html(processResult.tpl);
+
+            var link = $compile($element.contents());
+
+            if (locals.$$controller) {
+              locals.$scope = scope;
+              locals.$element = $element;
+              var controller = $controller(locals.$$controller, locals);
+              if (locals.$$controllerAs) {
+                scope[locals.$$controllerAs] = controller;
+              }
+              $element.data('$ngControllerController', controller);
+              $element.children().data('$ngControllerController', controller);
+            }
+
+            link(scope);
+          };
+
+          // 模版中不含脚本则直接编译,否则在获取完脚本之后再做编译
+          if (processResult.scripts.length) {
+            ScriptLoader.loadAsync.apply(ScriptLoader, processResult.scripts.concat([compileTemplate]));
+          } else {
+            compileTemplate();
+          }
+
+        };
+      }
+
+    });
 
     return $delegate;
 
