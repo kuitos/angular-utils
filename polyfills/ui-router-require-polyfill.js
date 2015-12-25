@@ -107,9 +107,15 @@
       tpl = tpl.replace(SCRIPT_TAG_REGEX, function (match) {
 
         // 抽取src部分按设置的优先级存入数组,默认优先级为0(最高优先级)
-        var seq = match.replace(SCRIPT_SEQ_REGEX, "$1") || 0;
+        var matchedScriptSeq = match.match(SCRIPT_SEQ_REGEX),
+          matchedScriptSrc = match.match(SCRIPT_SRC_REGEX);
+
+        var seq = (matchedScriptSeq && matchedScriptSeq[1]) || 0;
         scripts[seq] = scripts[seq] || [];
-        scripts[seq].push(match.replace(SCRIPT_SRC_REGEX, "$1"));
+
+        if (matchedScriptSrc && matchedScriptSrc[1]) {
+          scripts[seq].push(matchedScriptSrc[1]);
+        }
 
         return '<!-- script replaced -->';
       });
