@@ -1,0 +1,29 @@
+{
+  "parser": "babel-eslint",
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true
+  },
+  "globals": {
+    "__DEV__": true,
+    "__SERVER__": true
+  },
+  "ecmaFeatures": {
+    "jsx": true,
+    "modules": true,
+    "blockBindings": true
+  },
+  "rules": {
+    // Strict mode
+    "strict": [2, "never"],
+    // Code style
+    "quotes": [2, "single"],
+    "jsx-quotes": [2, "prefer-double"],
+    "object-shorthand": [2, "always"],
+    "arrow-parens": [2, "as-needed"],
+    "no-var": [
+      2
+    ]
+  }
+}
