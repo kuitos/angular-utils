@@ -5,7 +5,7 @@
  */
 
 import angular from 'angular';
-import Mediator from './mediator';
+import Mediator from './Mediator';
 
 export default angular
 	.module('ngUtils.mediator', [])

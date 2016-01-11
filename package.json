@@ -1,10 +1,10 @@
 {
   "name": "kuitos-angular-utils",
-  "version": "2.0.1",
+  "version": "2.0.0",
   "description": "a useful & powerful angular utils collections, without dependencies",
   "main": "lib/",
   "scripts": {
-	"build:lib": "NODE_ENV=production babel es6-components --out-dir lib --ignore **/__tests__"
+	"build:lib": "NODE_ENV=production babel components --out-dir lib --ignore **/__tests__"
   },
   "repository": {
 	"type": "git",
