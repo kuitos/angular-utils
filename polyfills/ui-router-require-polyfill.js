@@ -11,13 +11,7 @@
 
   angular
     .module('ui.router.requirePolyfill', ['ng', 'ui.router', 'oc.lazyLoad'])
-    .decorator('uiViewDirective', DecoratorConstructor)
-    .config(config);
-
-  config.$inject = ['$ocLazyLoadProvider'];
-  function config($ocLazyLoadProvider) {
-    $ocLazyLoadProvider.config({debug: true});
-  }
+    .decorator('uiViewDirective', DecoratorConstructor);
 
   /**
    * 装饰uiView指令,给其加入按需加载的能力
