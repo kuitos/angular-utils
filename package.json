@@ -1,6 +1,6 @@
 {
   "name": "kuitos-angular-utils",
-  "version": "1.4.0",
+  "version": "2.1.0",
   "description": "a useful & powerful angular utils collections, without dependencies",
   "main": "index.html",
   "scripts": {
