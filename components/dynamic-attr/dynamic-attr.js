@@ -6,98 +6,99 @@
  */
 ;
 (function (angular, undefined) {
-  "use strict";
+	"use strict";
 
-  angular.module("ngUtils.components.dynamicAttr", [])
+	angular.module("ngUtils.components.dynamicAttr", [])
 
-    // 支持的angular事件集合
-    .constant("SUPPORTED_NG_EVENTS", "click dblclick mousedown mouseup mouseover mouseout mousemove mouseenter mouseleave keydown keyup keypress submit focus blur copy cut paste".split(" "))
+		// 支持的angular事件集合
+		.constant("SUPPORTED_NG_EVENTS", "click dblclick mousedown mouseup mouseover mouseout mousemove mouseenter mouseleave keydown keyup keypress submit focus blur copy cut paste".split(" "))
 
-    .directive("dynamicAttr", ["$parse", "SUPPORTED_NG_EVENTS", function ($parse, SUPPORTED_NG_EVENTS) {
+		.directive("dynamicAttr", ["$parse", "SUPPORTED_NG_EVENTS", function ($parse, SUPPORTED_NG_EVENTS) {
 
-      return {
-        restrict: "A",
-        compile : function (element) {
+			return {
+				restrict: "A",
+				priority: 1,
+				compile: function (element) {
 
-          // 从元素上收集到的事件属性
-          var collectedNgEventMapper = {};
+					// 从元素上收集到的事件属性
+					var collectedNgEventMapper = {};
 
-          // 收集当前元素的原始事件(ng-click等)
-          SUPPORTED_NG_EVENTS.forEach(function (eventName) {
+					// 收集当前元素的原始事件(ng-click等)
+					SUPPORTED_NG_EVENTS.forEach(function (eventName) {
 
-            var ngEventAttr = "ng-" + eventName,
-              ngEventAttrValue = element.attr(ngEventAttr);
+						var ngEventAttr = "ng-" + eventName,
+							ngEventAttrValue = element.attr(ngEventAttr);
 
-            // 如果绑定存在
-            if (ngEventAttrValue && (ngEventAttrValue = ngEventAttrValue.trim())) {
+						// 如果绑定存在
+						if (ngEventAttrValue && (ngEventAttrValue = ngEventAttrValue.trim())) {
 
-              collectedNgEventMapper[ngEventAttr] = {
-                eventName: eventName,
-                expression: ngEventAttrValue,
-                fn: $parse(ngEventAttrValue, null, true)
-              };
-            }
+							collectedNgEventMapper[ngEventAttr] = {
+								eventName: eventName,
+								expression: ngEventAttrValue,
+								fn: $parse(ngEventAttrValue, null, true)
+							};
+						}
 
-          });
+					});
 
-          return function postLink(scope, element, attr) {
-            // 因为监听的是一个对象类型，所以这里watch的时候必须是true(调用angular.equals()对比而不是简单的===，简单的===可能会引发TTL负载异常)
-            scope.$watch(attr.dynamicAttr, function dynamicAttrAction(attributes) {
+					return function postLink(scope, element, attr) {
+						// 因为监听的是一个对象类型，所以这里watch的时候必须是true(调用angular.equals()对比而不是简单的===，简单的===可能会引发TTL负载异常)
+						scope.$watch(attr.dynamicAttr, function dynamicAttrAction(attributes) {
 
-              if (attributes !== undefined) {
+							if (attributes !== undefined) {
 
-                angular.forEach(attributes, function (attrAvailable, attribute) {
+								angular.forEach(attributes, function (attrAvailable, attribute) {
 
-                  var originalAttrInfo = collectedNgEventMapper[attribute] || element.attr(attribute) || true;
+									var originalAttrInfo = collectedNgEventMapper[attribute] || element.attr(attribute) || true;
 
-                  // 如果属性为已收集到的angular事件类型
-                  if (originalAttrInfo && originalAttrInfo.eventName) {
+									// 如果属性为已收集到的angular事件类型
+									if (originalAttrInfo && originalAttrInfo.eventName) {
 
-                    if (attrAvailable) {
+										if (attrAvailable) {
 
-                      // 如果当前元素上不存在该事件属性但是其原始事件属性存在(表明元素之前做过disable切换)，则重新绑定事件回调
-                      if (!element.attr(attribute) && originalAttrInfo) {
+											// 如果当前元素上不存在该事件属性但是其原始事件属性存在(表明元素之前做过disable切换)，则重新绑定事件回调
+											if (!element.attr(attribute) && originalAttrInfo) {
 
-                        element.removeClass(attribute + "-disabled").attr(attribute, originalAttrInfo.expression);
+												element.removeClass(attribute + "-disabled").attr(attribute, originalAttrInfo.expression);
 
-                        /**
-                         * rebind event callback
-                         * @see ngClick
-                         */
-                        element.bind(originalAttrInfo.eventName, function (event) {
-                          scope.$apply(function () {
-                            originalAttrInfo.fn(scope, {$event: event});
-                          });
-                        });
-                      }
+												/**
+												 * rebind event callback
+												 * @see ngClick
+												 */
+												element.bind(originalAttrInfo.eventName, function (event) {
+													scope.$apply(function () {
+														originalAttrInfo.fn(scope, {$event: event});
+													});
+												});
+											}
 
-                    } else {
+										} else {
 
-                      // 状态为false时加入样式并移除对应事件回调
-                      element.addClass(attribute + "-disabled").removeAttr(attribute).unbind(originalAttrInfo.eventName, originalAttrInfo.fn);
-                    }
+											// 状态为false时加入样式并移除对应事件回调
+											element.addClass(attribute + "-disabled").removeAttr(attribute).unbind(originalAttrInfo.eventName);
+										}
 
-                  } else {
+									} else {
 
-                    // TODO 当属性不可用时应该移除绑定在元素上相关的逻辑，而可用时则应加上相关逻辑，如何实现这种动态编译某一指令？？
-                    element[attrAvailable ? "attr" : "removeAttr"](attribute, originalAttrInfo);
-                  }
+										// TODO 当属性不可用时应该移除绑定在元素上相关的逻辑，而可用时则应加上相关逻辑，如何实现这种动态编译某一指令？？
+										element[attrAvailable ? "attr" : "removeAttr"](attribute, originalAttrInfo);
+									}
 
-                });
-              }
-            }, true);
+								});
+							}
+						}, true);
 
-            // unbind events for performance
-            scope.$on("$destroy", function unbindEvents() {
-              angular.forEach(collectedNgEventMapper, function (eventInfo) {
-                element.unbind(eventInfo.eventName);
-              });
+						// unbind events for performance
+						scope.$on("$destroy", function unbindEvents() {
+							angular.forEach(collectedNgEventMapper, function (eventInfo) {
+								element.unbind(eventInfo.eventName);
+							});
 
-            });
-          }
-        }
-      };
+						});
+					}
+				}
+			};
 
-    }]);
+		}]);
 
 })(window.angular);
