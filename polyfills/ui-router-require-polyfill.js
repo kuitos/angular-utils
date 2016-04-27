@@ -93,8 +93,8 @@
 		function processTpl(tpl) {
 
 			var SCRIPT_TAG_REGEX = /<script\s+((?!type=('|")text\/ng-template('|")).)*>.*<\/script>/gi,
-				SCRIPT_SRC_REGEX = /.*\ssrc="(\S+)".*/,
-				SCRIPT_SEQ_REGEX = /.*\sseq="(\S+)".*/,
+				SCRIPT_SRC_REGEX = /.*\ssrc=("|')(\S+)\1.*/,
+				SCRIPT_SEQ_REGEX = /.*\sseq=("|')(\S+)\1.*/,
 				scripts = [];
 
 			// 处理模版,将script抽取出来
@@ -104,11 +104,11 @@
 				var matchedScriptSeq = match.match(SCRIPT_SEQ_REGEX),
 					matchedScriptSrc = match.match(SCRIPT_SRC_REGEX);
 
-				var seq = (matchedScriptSeq && matchedScriptSeq[1]) || 0;
+				var seq = (matchedScriptSeq && matchedScriptSeq[2]) || 0;
 				scripts[seq] = scripts[seq] || [];
 
-				if (matchedScriptSrc && matchedScriptSrc[1]) {
-					scripts[seq].push(matchedScriptSrc[1]);
+				if (matchedScriptSrc && matchedScriptSrc[2]) {
+					scripts[seq].push(matchedScriptSrc[2]);
 				}
 
 				return '<!-- script replaced -->';
