@@ -2,8 +2,8 @@
  * @author Kuitos
  * @homepage https://github.com/kuitos/
  * @since 2015-12-11
- * 基于ui-router & script-loader实现的按需加载方案,可在不修改一行js代码的情况下实现angular框架的按需加载
- * 依赖于 browser-script-loader (https://github.com/kuitos/script-loader)
+ * 基于ui-router & oclazeload实现的按需加载方案,可在不修改一行js代码的情况下实现angular框架的按需加载
+ * 依赖于 oclazeload
  */
 ;(function (angular, undefined) {
 
