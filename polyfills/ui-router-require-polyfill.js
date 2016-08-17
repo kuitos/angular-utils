@@ -92,7 +92,7 @@
 		 */
 		function processTpl(tpl) {
 
-			var SCRIPT_TAG_REGEX = /<script\s+((?!type=('|")text\/ng-template('|")).)*>.*<\/script>/gi,
+			var SCRIPT_TAG_REGEX = /<script\s+((?!type=('|")text\/ng-template('|")).)*?>.*?<\/script>/gi,
 				SCRIPT_SRC_REGEX = /.*\ssrc=("|')(\S+)\1.*/,
 				SCRIPT_SEQ_REGEX = /.*\sseq=("|')(\S+)\1.*/,
 				scripts = [];
