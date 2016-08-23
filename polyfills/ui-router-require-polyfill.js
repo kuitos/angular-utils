@@ -140,7 +140,7 @@
 
 				promise = promise.then(function (nextGroup) {
 					return $ocLazyLoad.load(nextGroup);
-				}.call(null, nextGroup));
+				}.bind(null, nextGroup));
 			}
 
 			return promise.catch(errorHandle);
