@@ -138,9 +138,9 @@
 
 				nextGroup = scripts.shift();
 
-				promise = promise.then(function () {
+				promise = promise.then(function (nextGroup) {
 					return $ocLazyLoad.load(nextGroup);
-				});
+				}.call(null, nextGroup));
 			}
 
 			return promise.catch(errorHandle);
